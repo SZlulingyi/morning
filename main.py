@@ -19,10 +19,20 @@ template_id = os.environ["TEMPLATE_ID"]
 
 
 def get_weather():
-  url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
-  res = requests.get(url).json()
-  weather = res['data']['list'][0]
-  return weather['weather'], math.floor(weather['temp'])
+  url = "https://www.tianqi.com/suzhou/"
+  headers = {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36'
+      ,
+      'cookie': 'Hm_lvt_ab6a683aa97a52202eab5b3a9042a8d2=1661411951; Hm_lvt_30606b57e40fddacb2c26d2b789efbcb=1661413345; Hm_lpvt_3060'
+                '6b57e40fddacb2c26d2b789efbcb=1661414297; cs_prov=04; cs_city=0401; ccity=101040100; Hm_lpvt_ab6a683aa97a52202eab5b3a9'
+                '042a8d2=1661414326'
+  }
+  resp = requests.get(url=url, headers=headers).text
+  html = BeautifulSoup(resp, 'html.parser')
+  html2 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="weather").find('span').text  # 获取当天温度
+  html3 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="shidu").text  # 湿度，风度紫外线
+  html4 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="kongqi").text  # 空气质
+  return html2，html3，html4
 
 def get_count():
   delta = today - datetime.strptime(start_date, "%Y-%m-%d")
@@ -47,7 +57,7 @@ def get_random_color():
 client = WeChatClient(app_id, app_secret)
 
 wm = WeChatMessage(client)
-wea, temperature = get_weather()
-data = {"weather":{"value":wea},"temperature":{"value":temperature},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"words":{"value":get_words(), "color":get_random_color()}}
+wea, humidity,quality = get_weather()
+data = {"weather":{"value":wea},"humidity":{"value":humidity},"quality":{"value":quality},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"words":{"value":get_words(), "color":get_random_color()}}
 res = wm.send_template(user_id, template_id, data)
 print(res)
