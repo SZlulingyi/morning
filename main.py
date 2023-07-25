@@ -32,7 +32,7 @@ def get_weather():
   html2 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="weather").find('span').text  # 获取当天温度
   html3 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="shidu").text  # 湿度，风度紫外线
   html4 = html.find('div', class_="weatherbox").find("dl", class_="weather_info").find('dd',class_="kongqi").text  # 空气质
-  return html2,html3,html4
+  return html2,html3.split("风向")[0].split("：")[1],html4.split("PM")[0].split("：")[1]
 
 def get_count():
   delta = today - datetime.strptime(start_date, "%Y-%m-%d")
